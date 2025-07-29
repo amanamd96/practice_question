@@ -1,0 +1,7 @@
+Q -  Identify products with revenue higher than the average across all products.
+SOL - SELECT product_name
+FROM products
+WHERE revenue > (
+    SELECT AVG(revenue)
+    FROM products
+);
