@@ -11,3 +11,17 @@ Sol - SELECT
 FROM sales
 GROUP BY category, TO_CHAR(sale_date, 'YYYY-MM')
 ORDER BY category, month;
+
+
+Q - Retrieve the top 3 revenue-generating products within each category.
+SOL - SELECT
+  category_name,
+  revenue
+FROM (
+  SELECT 
+    category_name, 
+    revenue,
+    ROW_NUMBER() OVER (PARTITION BY category_name ORDER BY revenue DESC) AS rn
+  FROM products
+) tb
+WHERE rn <= 3;
