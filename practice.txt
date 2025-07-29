@@ -1,0 +1,13 @@
+Q - Write a query to find the cumulative revenue by month for each product category in a sales table.
+Sol - SELECT  
+  category,
+  TO_CHAR(sale_date, 'YYYY-MM') AS month,
+  SUM(revenue) AS monthly_revenue,
+  SUM(SUM(revenue)) OVER (
+    PARTITION BY category 
+    ORDER BY TO_CHAR(sale_date, 'YYYY-MM')
+    ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+  ) AS cumulative_revenue
+FROM sales
+GROUP BY category, TO_CHAR(sale_date, 'YYYY-MM')
+ORDER BY category, month;
