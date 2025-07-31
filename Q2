@@ -1,0 +1,46 @@
+You're working for a large financial institution that provides various types of loans to customers. Your task is to analyze loan repayment data to assess credit risk and improve risk management strategies.
+
+Write an SQL to create 2 flags for each loan as per below rules. Display loan id, loan amount , due date and the 2 flags.
+
+ 
+
+1- fully_paid_flag: 1 if the loan was fully repaid irrespective of payment date else it should be 0.
+2- on_time_flag : 1 if the loan was fully repaid on or before due date else 0.
+Table: loans
++-------------+-----------+
+| COLUMN_NAME | DATA_TYPE |
++-------------+-----------+
+| loan_id     | int       |
+| customer_id | int       |
+| loan_amount | int       |
+| due_date    | date      |
++-------------+-----------+
+Table: payments
++--------------+-----------+
+| COLUMN_NAME  | DATA_TYPE |
++--------------+-----------+
+| amount_paid  | int       |
+| loan_id      | int       |
+| payment_date | date      |
+| payment_id   | int       |
++--------------+-----------+
+
+SOL - WITH loanData AS(
+  SELECT
+  L.loan_id,
+  L.loan_amount,
+  L.due_date,
+  SUM(P.amount_paid) as paid_amount,
+  MAX(P.payment_date) as last_paid_date
+  FROM loans L
+  inner join 
+  payments P
+  using (loan_id)
+  group by P.loan_id
+)
+
+SELECT
+loan_id , loan_amount , due_date ,
+CASE  WHEN loan_amount > paid_amount THEN  0 ELSE 1 END AS fully_paid_flag,
+CASE WHEN loan_amount <= paid_amount AND due_date >= last_paid_date THEN 1 ELSE 0 END AS on_time_flag
+FROM loanData
