@@ -1,0 +1,46 @@
+If you enjoy solving real-world SQL problems, here’s one for you 👇
+📊 Scenario:
+We’re working with two tables – patients and covid_tests. Each patient can have multiple test results: Positive, Negative, or Inconclusive.
+🧩 Your Task:
+Find patients who have recovered from COVID:
+They must have at least one Positive test, followed by a Negative test on a later date.
+Calculate recovery time (days between first Positive and first later Negative).
+Show only patients who meet the recovery criteria.
+Order by recovery_time (ascending), then patient_name (ascending).
+💡 Question:
+How would you write the SQL query to solve this?
+👇 Drop your query in the comments — let’s see different approaches!
+I’ll share the solution later.
+
+
+Solution - 
+WITH CTE AS (SELECT
+patient_id,
+MIN(test_date) as positive_test_date
+FROM covid_tests
+WHERE result = 'Positive'
+GROUP BY patient_id),
+
+# FIRST NEGATIVE TEST DATE AFTER POSITIVE 
+CTE2 AS (SELECT
+ct.patient_id, 
+c1.positive_test_date,
+ct.test_date as negative_test_date
+FROM covid_tests ct
+INNER JOIN 
+CTE c1
+on c1.patient_id = ct.patient_id AND ct.test_date > c1.positive_test_date
+WHERE result = 'Negative'
+GROUP BY patient_id)
+
+# join patients table with CTE2 
+SELECT
+p.patient_id,
+p.patient_name,
+p.age,
+DATEDIFF(c2.negative_test_date , c2.positive_test_date) as recovery_time
+FROM patients p
+INNER JOIN 
+CTE2 c2
+on c2.patient_id = p.patient_id
+ORDER BY recovery_time , patient_name
